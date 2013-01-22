@@ -15,26 +15,25 @@
  */
 package fr.xebia.productionready;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.UserDetailsManager;
 
-import fr.xebia.springframework.security.core.userdetails.ExtendedUser;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
  * Initialize the application (add rows in the database, etc).
  * </p>
- * 
+ *
  * @author <a href="mailto:cyrille@cyrilleleclerc.com">Cyrille Le Clerc</a>
  */
 public class Initializer implements InitializingBean {
@@ -53,27 +52,30 @@ public class Initializer implements InitializingBean {
 
         Connection connection = dataSource.getConnection();
         try {
-            String createUsersTable = "create table users(username varchar(256), password varchar(256), enabled int, allowedRemoteAddresses varchar(256), comments varchar(256))";
+            String createUsersTable = "create table if not exists users(username varchar(256), password varchar(256), enabled int, allowedRemoteAddresses varchar(256), comments varchar(256))";
             connection.createStatement().execute(createUsersTable);
 
-            String createAuthoritiesTable = "create table authorities(username varchar(256), authority varchar(256))";
+            String createAuthoritiesTable = "create table if not exists  authorities(username varchar(256), authority varchar(256))";
             connection.createStatement().execute(createAuthoritiesTable);
 
         } finally {
             connection.close();
         }
 
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new GrantedAuthorityImpl("ROLE_USER"));
-        authorities.add(new GrantedAuthorityImpl("ROLE_ADMIN"));
+        if (!userDetailsManager.userExists("admin")) {
+            List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-        ExtendedUser user = new ExtendedUser("admin", "admin", true, true, true, true, authorities);
-        user.setComments("my first comment");
-        user.setAllowedRemoteAddresses("10\\..*, 127\\..*, 0:0:0:0:0:0:0:1%0");
+            LdapShaPasswordEncoder passwordEncoder = new LdapShaPasswordEncoder();
 
-        userDetailsManager.createUser(user);
+            String encodedPassword = passwordEncoder.encodePassword("admin", "admin-salt".getBytes());
+            User user = new User("admin", encodedPassword, true, true, true, true, authorities);
 
-        logger.warn("initialized");
+            userDetailsManager.createUser(user);
+        }
+
+        logger.warn("Application successfully initialized");
     }
 
     public DataSource getDataSource() {
