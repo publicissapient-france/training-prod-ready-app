@@ -1,0 +1,26 @@
+{
+    "queries": [
+        {
+            "objectName": "java.util.concurrent:name=anotherVerySlowServiceExecutorThreadPool,type=ThreadPoolExecutor",
+            "resultAlias": "prod-ready-app.anotherVerySlowService.executor",
+            "attributes": ["CompletedTaskCount", "ActiveCount"]
+        }
+    ],
+    "outputWriters": [
+        {
+            "@class": "org.jmxtrans.embedded.output.ConsoleWriter",
+            "settings": {
+                "enabled": false
+            }
+        },
+        {
+            "@class": "org.jmxtrans.embedded.output.GraphiteWriter",
+            "settings": {
+                "host": "${graphite.host:carbon.hostedgraphite.com}",
+                "port": "${graphite.port:2003}",
+                "namePrefix": "${graphite.namePrefix:servers.#hostname#.}",
+                "enabled": "${graphite.enabled:false}"
+            }
+        }
+    ]
+}

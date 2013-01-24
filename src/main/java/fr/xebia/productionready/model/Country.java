@@ -25,13 +25,14 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.NaturalId;
 
 /**
  * @author <a href="mailto:cyrille.leclerc@pobox.com">Cyrille Le Clerc</a>
  */
 @Entity
-@org.hibernate.annotations.Entity(mutable=false)
+@Immutable
 @Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 public class Country {
     

@@ -12,6 +12,7 @@
        xmlns:management="http://www.xebia.fr/schema/xebia-management-extras"
        xmlns:amq="http://activemq.apache.org/schema/core"
        xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:jmxtrans="http://www.jmxtrans.org/schema/embedded"
        xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
 		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
 		http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
@@ -25,7 +26,8 @@
 		http://www.xebia.fr/schema/xebia-spring-security-extras http://www.xebia.fr/schema/security/xebia-spring-security-extras.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.7.0.xsd">
+        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.7.0.xsd
+        http://www.jmxtrans.org/schema/embedded http://www.jmxtrans.org/schema/embedded/jmxtrans-1.0.xsd">
 
 
     <context:property-placeholder system-properties-mode="OVERRIDE" properties-ref="profileSpecificProperties"/>
@@ -38,9 +40,15 @@
     <management:profile-aspect server="mbeanServer"/>
     <management:application-version-mbean/>
 
+    <jmxtrans:jmxtrans>
+        <jmxtrans:configuration>classpath:jmxtrans.json</jmxtrans:configuration>
+        <jmxtrans:configuration>classpath:org/jmxtrans/embedded/config/tomcat-6.json</jmxtrans:configuration>
+        <jmxtrans:configuration>classpath:org/jmxtrans/embedded/config/jvm-sun-hotspot.json</jmxtrans:configuration>
+    </jmxtrans:jmxtrans>
+
     <!-- JMX -->
-    <context:mbean-server id="mbeanServer"/>
-    <context:mbean-export server="mbeanServer"/>
+    <context:mbean-server/>
+    <context:mbean-export/>
 
     <!-- SECURITY -->
     <sec:http auto-config='true' realm="Production Ready Application" create-session="never">
@@ -196,7 +204,7 @@
         <property name="connectionFactory" ref="connectionFactory"/>
     </bean>
 
-    <bean id="emailService"  class="fr.xebia.productionready.service.EmailService"/>
+    <bean id="emailService" class="fr.xebia.productionready.service.EmailService"/>
 
     <bean id="customerCache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
         <property name="cacheManager" ref="cacheManager"/>
