@@ -15,97 +15,39 @@
  */
 package fr.xebia.productionready.service;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedResource;
-
-import com.google.common.util.concurrent.Futures;
-
 import fr.xebia.productionready.backend.anotherveryslowservice.AnotherVerySlowService;
 import fr.xebia.productionready.backend.zeveryslowservice.ZeVerySlowService;
 
-@ManagedResource(objectName = "fr.xebia:service=ZeVerySlowAggregatingService,type=ZeVerySlowAggregatingServiceParallelImpl")
+import java.util.concurrent.ExecutorService;
+
 public class ZeVerySlowAggregatingServiceParallelImpl implements ZeVerySlowAggregatingService {
 
     private AnotherVerySlowService anotherVerySlowService;
-
-    private ExecutorService anotherVerySlowServiceExecutor;
-
-    private long timeoutInMillis = 2500;
-
     private ZeVerySlowService zeVerySlowService;
-
-    private ExecutorService zeVerySlowServiceExecutor;
 
     @Override
     public String doWork(final long id) {
 
-        Callable<String> zeVerySlowCommand = new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return zeVerySlowService.find(id);
-            }
-        };
-        Future<String> zeVerySlowResponse;
-        try {
-            zeVerySlowResponse = zeVerySlowServiceExecutor.submit(zeVerySlowCommand);
-        } catch (RejectedExecutionException e) {
-            zeVerySlowResponse = Futures.immediateFailedCheckedFuture(e);
-        }
-
-        Callable<String> anotherVerySlowCommand = new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return anotherVerySlowService.find(id);
-            }
-        };
-        Future<String> anotherVerySlowResponse = anotherVerySlowServiceExecutor.submit(anotherVerySlowCommand);
-
-        String zeVerySlowResponseReal;
-        try {
-            zeVerySlowResponseReal = zeVerySlowResponse.get(timeoutInMillis, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            zeVerySlowResponseReal = null;
-        }
-
-        String anotherVerySlowResponseReal;
-        try {
-            anotherVerySlowResponseReal = anotherVerySlowResponse.get(timeoutInMillis, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            anotherVerySlowResponseReal = null;
-        }
-        String result = zeVerySlowResponseReal + "\t" + anotherVerySlowResponseReal;
+        String result = zeVerySlowService.find(id);
+        result += "\t";
+        result += anotherVerySlowService.find(id);
 
         return result;
-    }
-
-    @ManagedAttribute
-    public long getTimeoutInMillis() {
-        return timeoutInMillis;
     }
 
     public void setAnotherVerySlowService(AnotherVerySlowService anotherVerySlowService) {
         this.anotherVerySlowService = anotherVerySlowService;
     }
 
-    public void setAnotherVerySlowServiceExecutor(ExecutorService anotherVerySlowServiceExecutor) {
-        this.anotherVerySlowServiceExecutor = anotherVerySlowServiceExecutor;
-    }
-
-    public void setTimeoutInMillis(long timeoutInMillis) {
-        this.timeoutInMillis = timeoutInMillis;
-    }
-
     public void setZeVerySlowService(ZeVerySlowService zeVerySlowService) {
         this.zeVerySlowService = zeVerySlowService;
     }
 
+    public void setAnotherVerySlowServiceExecutor(ExecutorService anotherVerySlowServiceExecutor) {
+        // TODO
+    }
+
     public void setZeVerySlowServiceExecutor(ExecutorService zeVerySlowServiceExecutor) {
-        this.zeVerySlowServiceExecutor = zeVerySlowServiceExecutor;
+        // TODO
     }
 }
