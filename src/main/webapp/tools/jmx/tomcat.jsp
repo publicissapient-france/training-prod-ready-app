@@ -60,8 +60,7 @@
                 out.println("<h2>Web Modules</h2>");
                 // Catalina:j2eeType=WebModule,name=//localhost/cas,J2EEApplication=none,J2EEServer=none
                 Set<ObjectInstance> objectInstances = mbeanServer.queryMBeans(new ObjectName("Catalina:j2eeType=WebModule,*"), null);
-                dumpMbeans(objectInstances, out, mbeanServer, "path", "state", "docBase");
-                out.write("<em>State : 0 STARTING, 1 RUNNING, 3 STOPPED, 4 FAILED</em><br/>");
+                dumpMbeans(objectInstances, out, mbeanServer, "path", "docBase");
                 out.write("Total mbeans count <b>" + objectInstances.size() + "</b>");
             }
             {

@@ -9,10 +9,10 @@
     <name>production-ready-application Maven Webapp</name>
 
     <scm>
-        <connection>scm:git:http://xebia-france.googlecode.com/svn/training/production-ready-application/trunk/
+        <connection>scm:git:git://github.com/xebia-france/training-prod-ready-app.git
         </connection>
         <developerConnection>
-            scm:svn:https://xebia-france.googlecode.com/svn/training/production-ready-application/trunk/
+            scm:git:git@github.com:xebia-france/training-prod-ready-app.git
         </developerConnection>
     </scm>
     <dependencies>
